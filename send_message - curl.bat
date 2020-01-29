@@ -1,0 +1,1 @@
+curl --header "Content-Type: application/json" --header "X-API-Token: dc2fd84cfeff71d6bc9b7c1157d8d58645a268d1" --data @data_file.json https://appcenter.ms/api/v0.1/apps/Sulfur0/HorusMobile/push/notifications

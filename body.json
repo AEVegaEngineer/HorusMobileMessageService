@@ -1,0 +1,9 @@
+{
+  "notification_content": {
+    "name": "test21",
+    "title": "Liquidación",
+    "body": "Buen Día Dr(a)., usted tiene una nueva liquidación ",
+    "custom_data": {"key1": "val1", "key2": "val2"}
+  },
+  "notification_target": null
+}
