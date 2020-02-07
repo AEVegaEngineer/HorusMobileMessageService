@@ -2,8 +2,8 @@ import json
 import requests
 import io
 from datetime import datetime
-titulo = io.open("C:/Users/PC/source/repos/message-service/estructura/titulo1.txt", encoding='utf-8')
-cuerpo = io.open("C:/Users/PC/source/repos/message-service/estructura/cuerpo1.txt", encoding='utf-8')
+titulo = io.open("C:/Users/PC/source/repos/horusmobilemessageservice/estructura/titulo1.txt", encoding='utf-8')
+cuerpo = io.open("C:/Users/PC/source/repos/horusmobilemessageservice/estructura/cuerpo1.txt", encoding='utf-8')
 
 time = datetime.now()
 time = time.strftime("%d%m%Y%H%M%S")
