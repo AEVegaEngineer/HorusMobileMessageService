@@ -65,9 +65,6 @@ def enviar(data):
 	print(x)
 	print()
 
-def generarNotificaciones():
-
-	
 
 def main():
 	minutos = 60
