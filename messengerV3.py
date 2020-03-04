@@ -9,7 +9,7 @@ from datetime import datetime
 # OBTENER LA CABECERA, LUEGO OBTENER TODOS LOS USERIDS QUE LE PEGUEN A ESA CABECERA Y ARMAR LA NOTIFICACION
 
 def obtenerCabeceras():
-	db = pymysql.connect("192.168.50.98","appusr","1xz9tv48","intranet" )
+	db = pymysql.connect("192.168.50.81","remoto","1xz9tv48","intranet" )
 	cursor = db.cursor()
 	cursor.execute("SELECT * FROM `app_notif_cabecera`")
 	data = cursor.fetchall()
@@ -17,9 +17,14 @@ def obtenerCabeceras():
 	return data
 
 def mysqlConnect(cabecera):
-	db = pymysql.connect("192.168.50.98","appusr","1xz9tv48","intranet" )
+	
+	db = pymysql.connect("192.168.50.81","remoto","1xz9tv48","intranet" )
 	cursor = db.cursor()
-	cursor.execute("SELECT DISTINCT deviceid FROM `app_user_devices` as d join app_notif_cuerpo as c on d.user_id = c.fk_user_objetivo where c.estado = 0 and fk_cabecera = "+str(cabecera[0]))
+	consulta = "SELECT DISTINCT deviceid FROM `app_user_devices` as d join app_notif_cuerpo as c on d.user_id = c.fk_user_objetivo where c.estado = 0 and fk_cabecera = "+str(cabecera[0])
+	#print ("************")
+	#print (consulta)
+	#print ("************")
+	cursor.execute(consulta)
 
 	data = cursor.fetchall()
 	db.close()
@@ -67,19 +72,19 @@ def enviar(data):
 
 
 def main():
-	minutos = 60
+	print ("Servicio de Mensajería Iniciado")
+	minutos = 1
+	tiempoEntreNotificaciones = 5
 	
 	while 1:
-
-		generarNotificaciones()
 		cabeceras = obtenerCabeceras()
 		for cabecera in cabeceras:
 			consulta = mysqlConnect(cabecera)
 			json = generarJson(consulta)
 			#print(json)
 			enviar(json)
-			print("Esperando 30 segundos para la siguiente notificación...")
-			time.sleep(30)
+			print("Esperando "+str(tiempoEntreNotificaciones)+" segundos para enviar la siguiente notificación...")
+			time.sleep(tiempoEntreNotificaciones)
 		
 		print("Se buscarán nuevas notificaciones en "+str(minutos)+" minutos")
 		time.sleep(minutos*60)
