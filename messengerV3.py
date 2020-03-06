@@ -20,7 +20,11 @@ def mysqlConnect(cabecera):
 	
 	db = pymysql.connect("192.168.50.81","remoto","1xz9tv48","intranet" )
 	cursor = db.cursor()
-	consulta = "SELECT DISTINCT deviceid FROM `app_user_devices` as d join app_notif_cuerpo as c on d.user_id = c.fk_user_objetivo where c.estado = 0 and fk_cabecera = "+str(cabecera[0])
+	#consulta = "SELECT DISTINCT deviceid FROM `app_user_devices` as d join app_notif_cuerpo as c on d.user_id = c.fk_user_objetivo where c.estado = 0 and fk_cabecera = "+str(cabecera[0])
+
+	consulta = "SELECT deviceid FROM `app_user_devices` as d join app_notif_cuerpo as c on d.user_id = c.fk_user_objetivo where c.estado = 0 and fk_cabecera = "+str(cabecera[0])
+
+
 	#print ("************")
 	#print (consulta)
 	#print ("************")
@@ -29,6 +33,8 @@ def mysqlConnect(cabecera):
 	data = cursor.fetchall()
 	db.close()
 	notifs = {}
+	if data == ():
+		return "empty_notif"
 	notifs["cabecera"]=cabecera
 	notifs["objetivos"]=data
 
@@ -37,7 +43,7 @@ def mysqlConnect(cabecera):
 #@function: toda la lógica interna para crear la notificación per se en formato json
 #@param criterio: criterio bajo el cual se buscará la información en base de datos
 def generarJson(consulta):
-	#print (consulta)
+	#print (consulta) 
 	resultado = {}
 	resultado["app_id"] = "5bd931bc-a426-44ec-85a5-bfd47a771213"
 
@@ -77,16 +83,23 @@ def main():
 	tiempoEntreNotificaciones = 5
 	
 	while 1:
+		tiempo = datetime.now()
+		tiempo = time.strftime("%d/%m/%Y %H:%M:%S")
 		cabeceras = obtenerCabeceras()
 		for cabecera in cabeceras:
 			consulta = mysqlConnect(cabecera)
+			if consulta == "empty_notif":
+				continue
 			json = generarJson(consulta)
 			#print(json)
+			tiempo = datetime.now()
+			tiempo = time.strftime("%d/%m/%Y %H:%M:%S")
+			print (tiempo+" notificación generada")
 			enviar(json)
 			print("Esperando "+str(tiempoEntreNotificaciones)+" segundos para enviar la siguiente notificación...")
 			time.sleep(tiempoEntreNotificaciones)
 		
-		print("Se buscarán nuevas notificaciones en "+str(minutos)+" minutos")
+		print(tiempo+" Se buscarán nuevas notificaciones en "+str(minutos)+" minutos")
 		time.sleep(minutos*60)
 
 main()
