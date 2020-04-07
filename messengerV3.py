@@ -17,16 +17,22 @@ def mysqlConnect(consulta):
 
 def obtenerCabeceras():
 	# SELECCIONA UNA SOLA CABECERA, LUEGO SE SELECCIONAN VARIOS USUARIOS PARA ESA CABECERA
-	consulta = "SELECT DISTINCT cab.* FROM `app_notif_cabecera` as cab join app_notif_cuerpo as cue on cab.id_cabecera = cue.fk_cabecera"# where cue.estado = 0
+	consulta = "SELECT DISTINCT cab.* FROM `app_notif_cabecera` as cab join app_notif_cuerpo as cue on cab.id_cabecera = cue.fk_cabecera where cue.estado = 0"# 
 	data = mysqlConnect(consulta)	
 	return data
 
 def getCabeceras(cabecera):	
 
-	consulta = "SELECT d.deviceid FROM `app_user_devices` as d join app_notif_cuerpo as c on d.user_id = c.fk_user_objetivo where c.estado = 0 and fk_cabecera = "+str(cabecera[0])+" and (c.f_hs_ultimo_envio + INTERVAL 1 DAY <= now() or c.f_hs_ultimo_envio is null or c.f_hs_ultimo_envio = '0000-00-00 00:00:00')"
+	consulta = "SELECT DISTINCT d.deviceid FROM `app_user_devices` as d join app_notif_cuerpo as c on d.user_id = c.fk_user_objetivo where c.estado = 0 and fk_cabecera = "+str(cabecera[0])+" and (c.f_hs_ultimo_envio + INTERVAL 1 DAY <= now() or c.f_hs_ultimo_envio is null or c.f_hs_ultimo_envio = '0000-00-00 00:00:00')"
+
 	data = mysqlConnect(consulta)	
 
-	actualizacion = "update app_notif_cuerpo set f_hs_ultimo_envio = now() where estado = 0 and fk_cabecera = "+str(cabecera[0])+" and (f_hs_ultimo_envio + INTERVAL 1 DAY <= now() or f_hs_ultimo_envio is null or f_hs_ultimo_envio = '0000-00-00 00:00:00')"
+	#actualizacion = "update app_notif_cuerpo set f_hs_ultimo_envio = now() where estado = 0 and fk_cabecera = "+str(cabecera[0])+" and (f_hs_ultimo_envio + INTERVAL 1 DAY <= now() or f_hs_ultimo_envio is null or f_hs_ultimo_envio = '0000-00-00 00:00:00')"
+
+	actualizacion = "update app_notif_cuerpo set f_hs_ultimo_envio = now() where estado = 0 and fk_cabecera = "+str(cabecera[0])+" and (f_hs_ultimo_envio + INTERVAL 1 DAY <= now() or f_hs_ultimo_envio is null or f_hs_ultimo_envio = '0000-00-00 00:00:00') and EXISTS(select * from app_user_devices where user_id = fk_user_objetivo)"
+	print(actualizacion)
+
+
 	mysqlConnect(actualizacion)
 
 	notifs = {}
@@ -82,7 +88,7 @@ def enviar(data):
 def main():
 
 	print ("Servicio de Mensajería Iniciado")
-	minutos = 2
+	minutos = 1
 	tiempoEntreNotificaciones = 5
 	
 	while 1:
