@@ -10,18 +10,22 @@ from datetime import datetime
 #@param string consulta: sentencia sql que se ejecutará en base de datos
 #@return: data que se retorna como resultado
 def ejecutarConsulta(consulta):
-	db = pymysql.connect("192.168.50.81","remoto","1xz9tv48","intranet" )
-	cursor = db.cursor()
-	cursor.execute(consulta)
-	# capturo si la sentencia que se ejecuta es un update	
-	if consulta[0] == "u":
-		db.commit()
-		data = None
-	else:
-		data = cursor.fetchall()	
-	db.close()
-	return data
-
+	try:
+		db = pymysql.connect("192.168.50.81","remoto","1xz9tv48","intranet" )
+		cursor = db.cursor()
+		cursor.execute(consulta)
+		# capturo si la sentencia que se ejecuta es un update	
+		if consulta[0] == "u":
+			db.commit()
+			data = None
+		else:
+			data = cursor.fetchall()	
+		db.close()
+		return data
+	except pymysql.MySQLError as e:
+		print('Se obtuvo mysql error {!r}, con errno: {}'.format(e, e.args[0]))
+		a = ()
+		return a
 
 def construir_mensajes():
 
@@ -71,6 +75,10 @@ def generarJson(objetivos, titulo, contenido):
 	text = {}
 	text["en"] = contenido
 	resultado["contents"] = text
+	resultado["android_group"] = 1
+	resultado["android_sound"] = "eventually"
+	#resultado["small_icon"] = "ic_stat_onesignal_default"
+	#resultado["large_icon"] = "ic_onesignal_large_icon_default"
 	#print(resultado)
 	return resultado
 
@@ -103,8 +111,9 @@ def reemplazarVariables(mensaje,foranea_cuerpo):
 	return texto
 
 def main():
-	print ("Servicio de Mensajería Iniciado")
 	minutos = 2
+	print ("Servicio de Mensajería Iniciado. Se buscarán nuevas notificaciones cada "+str(minutos)+" minutos")
+	
 	while 1:
 		tiempo = datetime.now()
 		tiempo = time.strftime("%d/%m/%Y %H:%M:%S")
@@ -113,9 +122,9 @@ def main():
 		if mensajes == "sin_mensajes":
 			print (tiempo+" No hay notificaciones por enviar")
 		else:
+		#if mensajes != "sin_mensajes":
 			for mensaje in mensajes:
 				print(tiempo)
 				enviar(mensaje)
-		print(tiempo+" Se buscarán nuevas notificaciones en "+str(minutos)+" minutos")
 		time.sleep(minutos*60)	
 main()
